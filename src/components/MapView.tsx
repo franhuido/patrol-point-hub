@@ -1,6 +1,9 @@
 import { Vehicle } from "@/pages/VehicleTracker";
 import { VehicleMarker } from "./VehicleMarker";
 import { FilterMarker } from "./FilterMarker";
+import { useState, useRef } from "react";
+import { Plus, Minus } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface MapViewProps {
   vehicles: Vehicle[];
@@ -29,23 +32,61 @@ const poisData = {
 };
 
 export function MapView({ vehicles, onVehicleClick, activeFilters }: MapViewProps) {
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const [mapPosition, setMapPosition] = useState({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
+  const mapRef = useRef<HTMLDivElement>(null);
+
   const allPois = activeFilters.flatMap(filter => {
     const pois = poisData[filter as keyof typeof poisData] || [];
     return pois.map(poi => ({ ...poi, type: filter }));
   });
 
+  const handleMouseDown = (e: React.MouseEvent) => {
+    setIsDragging(true);
+    setDragStart({ x: e.clientX - mapPosition.x, y: e.clientY - mapPosition.y });
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging) return;
+    setMapPosition({
+      x: e.clientX - dragStart.x,
+      y: e.clientY - dragStart.y
+    });
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
+  const handleZoomIn = () => {
+    setZoom(prev => Math.min(prev + 0.2, 3));
+  };
+
+  const handleZoomOut = () => {
+    setZoom(prev => Math.max(prev - 0.2, 0.5));
+  };
+
   return (
     <div className="w-full h-full relative overflow-hidden">
       {/* Map Background - Styled to look like a real map */}
       <div 
-        className="w-full h-full bg-map-background relative"
+        ref={mapRef}
+        className="w-full h-full bg-map-background relative cursor-grab active:cursor-grabbing"
         style={{
           backgroundImage: `
             linear-gradient(0deg, transparent 24%, rgba(255, 255, 255, 0.05) 25%, rgba(255, 255, 255, 0.05) 26%, transparent 27%, transparent 74%, rgba(255, 255, 255, 0.05) 75%, rgba(255, 255, 255, 0.05) 76%, transparent 77%, transparent),
             linear-gradient(90deg, transparent 24%, rgba(255, 255, 255, 0.05) 25%, rgba(255, 255, 255, 0.05) 26%, transparent 27%, transparent 74%, rgba(255, 255, 255, 0.05) 75%, rgba(255, 255, 255, 0.05) 76%, transparent 77%, transparent)
           `,
-          backgroundSize: '50px 50px'
+          backgroundSize: `${50 * zoom}px ${50 * zoom}px`,
+          transform: `translate(${mapPosition.x}px, ${mapPosition.y}px) scale(${zoom})`,
+          transformOrigin: 'center'
         }}
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={handleMouseUp}
       >
         {/* Street Pattern Overlay */}
         <div className="absolute inset-0">
@@ -98,14 +139,24 @@ export function MapView({ vehicles, onVehicleClick, activeFilters }: MapViewProp
         ))}
       </div>
 
-      {/* Map Controls */}
-      <div className="absolute top-4 right-4 flex flex-col gap-2">
-        <button className="bg-background border border-border rounded p-2 shadow-md hover:bg-muted transition-colors">
-          <span className="text-lg font-bold">+</span>
-        </button>
-        <button className="bg-background border border-border rounded p-2 shadow-md hover:bg-muted transition-colors">
-          <span className="text-lg font-bold">-</span>
-        </button>
+      {/* Map Controls - Bottom Right */}
+      <div className="absolute bottom-4 right-4 flex flex-col gap-2">
+        <Button
+          size="sm"
+          onClick={handleZoomIn}
+          className="bg-background border border-border rounded p-2 shadow-md hover:bg-muted transition-colors text-foreground"
+          variant="outline"
+        >
+          <Plus className="h-4 w-4" />
+        </Button>
+        <Button
+          size="sm"
+          onClick={handleZoomOut}
+          className="bg-background border border-border rounded p-2 shadow-md hover:bg-muted transition-colors text-foreground"
+          variant="outline"
+        >
+          <Minus className="h-4 w-4" />
+        </Button>
       </div>
     </div>
   );
