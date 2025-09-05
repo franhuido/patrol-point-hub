@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { MapView } from "@/components/MapView";
-import { Sidebar } from "@/components/Sidebar";
 import { Header } from "@/components/Header";
 import { VehiclePopup } from "@/components/VehiclePopup";
 
@@ -97,11 +96,9 @@ const mockCommunications: Communication[] = [
 ];
 
 const VehicleTracker = () => {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
   const [activeFilters, setActiveFilters] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const [sidebarView, setSidebarView] = useState<"vehicles" | "communications">("vehicles");
   
   const filteredVehicles = mockVehicles.filter(vehicle => 
     vehicle.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -121,40 +118,29 @@ const VehicleTracker = () => {
   };
 
   return (
-    <div className="h-screen flex flex-col bg-background">
+    <div className="h-screen relative bg-background">
+      <MapView 
+        vehicles={filteredVehicles}
+        onVehicleClick={handleVehicleClick}
+        activeFilters={activeFilters}
+      />
+      
       <Header 
-        onMenuClick={() => setIsSidebarOpen(!isSidebarOpen)}
+        vehicles={mockVehicles}
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
         activeFilters={activeFilters}
         onFilterToggle={handleFilterToggle}
+        onVehicleClick={handleVehicleClick}
       />
       
-      <div className="flex-1 relative">
-        <MapView 
-          vehicles={filteredVehicles}
-          onVehicleClick={handleVehicleClick}
-          activeFilters={activeFilters}
+      {selectedVehicle && (
+        <VehiclePopup
+          vehicle={selectedVehicle}
+          communications={mockCommunications.filter(c => c.vehicleId === selectedVehicle.id)}
+          onClose={() => setSelectedVehicle(null)}
         />
-        
-        <Sidebar
-          isOpen={isSidebarOpen}
-          vehicles={mockVehicles}
-          communications={mockCommunications}
-          view={sidebarView}
-          onViewChange={setSidebarView}
-          onVehicleClick={handleVehicleClick}
-          onClose={() => setIsSidebarOpen(false)}
-        />
-        
-        {selectedVehicle && (
-          <VehiclePopup
-            vehicle={selectedVehicle}
-            communications={mockCommunications.filter(c => c.vehicleId === selectedVehicle.id)}
-            onClose={() => setSelectedVehicle(null)}
-          />
-        )}
-      </div>
+      )}
     </div>
   );
 };
