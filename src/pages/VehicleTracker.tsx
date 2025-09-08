@@ -127,6 +127,7 @@ const VehicleTracker = () => {
       
       <Header 
         vehicles={mockVehicles}
+        communications={mockCommunications}
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
         activeFilters={activeFilters}
