@@ -131,6 +131,9 @@ const VehicleTracker = () => {
         vehicles={filteredVehicles}
         onVehicleClick={handleVehicleClick}
         activeFilters={activeFilters}
+        selectedVehicles={selectedVehicles}
+        onClosePopup={(index) => setSelectedVehicles(prev => prev.filter((_, i) => i !== index))}
+        communications={mockCommunications}
       />
       
       <Header 
@@ -142,16 +145,6 @@ const VehicleTracker = () => {
         onFilterToggle={handleFilterToggle}
         onVehicleClick={handleVehicleClick}
       />
-      
-      {selectedVehicles.map((selectedVehicle, index) => (
-        <VehiclePopup
-          key={`${selectedVehicle.vehicle.id}-${index}`}
-          vehicle={selectedVehicle.vehicle}
-          communications={mockCommunications.filter(c => c.vehicleId === selectedVehicle.vehicle.id)}
-          position={selectedVehicle.position}
-          onClose={() => setSelectedVehicles(prev => prev.filter((_, i) => i !== index))}
-        />
-      ))}
     </div>
   );
 };

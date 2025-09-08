@@ -1,14 +1,18 @@
-import { Vehicle } from "@/pages/VehicleTracker";
+import { Vehicle, Communication } from "@/pages/VehicleTracker";
 import { VehicleMarker } from "./VehicleMarker";
 import { FilterMarker } from "./FilterMarker";
+import { VehiclePopup } from "./VehiclePopup";
 import { useState, useRef } from "react";
 import { Plus, Minus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface MapViewProps {
   vehicles: Vehicle[];
-  onVehicleClick: (vehicle: Vehicle) => void;
+  onVehicleClick: (vehicle: Vehicle, position?: {x: number, y: number}) => void;
   activeFilters: string[];
+  selectedVehicles: Array<{vehicle: Vehicle, position?: {x: number, y: number}}>;
+  onClosePopup: (index: number) => void;
+  communications: Communication[];
 }
 
 // Mock points of interest data
@@ -31,7 +35,7 @@ const poisData = {
   ]
 };
 
-export function MapView({ vehicles, onVehicleClick, activeFilters }: MapViewProps) {
+export function MapView({ vehicles, onVehicleClick, activeFilters, selectedVehicles, onClosePopup, communications }: MapViewProps) {
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [mapPosition, setMapPosition] = useState({ x: 0, y: 0 });
@@ -121,13 +125,19 @@ export function MapView({ vehicles, onVehicleClick, activeFilters }: MapViewProp
         </div>
 
         {/* Vehicle Markers */}
-        {vehicles.map((vehicle) => (
-          <VehicleMarker
-            key={vehicle.id}
-            vehicle={vehicle}
-            onClick={() => onVehicleClick(vehicle)}
-          />
-        ))}
+        {vehicles.map((vehicle) => {
+          // Calculate vehicle position on screen
+          const x = (vehicle.position.lng + 70.7) * 800;
+          const y = (33.5 - vehicle.position.lat) * 600;
+          
+          return (
+            <VehicleMarker
+              key={vehicle.id}
+              vehicle={vehicle}
+              onClick={() => onVehicleClick(vehicle, { x, y })}
+            />
+          );
+        })}
 
         {/* Points of Interest */}
         {allPois.map((poi) => (
@@ -135,6 +145,17 @@ export function MapView({ vehicles, onVehicleClick, activeFilters }: MapViewProp
             key={poi.id}
             poi={poi}
             type={poi.type}
+          />
+        ))}
+
+        {/* Vehicle Popups */}
+        {selectedVehicles.map((selectedVehicle, index) => (
+          <VehiclePopup
+            key={`${selectedVehicle.vehicle.id}-${index}`}
+            vehicle={selectedVehicle.vehicle}
+            communications={communications.filter(c => c.vehicleId === selectedVehicle.vehicle.id)}
+            position={selectedVehicle.position}
+            onClose={() => onClosePopup(index)}
           />
         ))}
       </div>
