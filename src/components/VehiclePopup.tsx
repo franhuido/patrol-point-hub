@@ -8,9 +8,10 @@ interface VehiclePopupProps {
   vehicle: Vehicle;
   communications: Communication[];
   onClose: () => void;
+  position?: { x: number; y: number };
 }
 
-export function VehiclePopup({ vehicle, communications, onClose }: VehiclePopupProps) {
+export function VehiclePopup({ vehicle, communications, onClose, position }: VehiclePopupProps) {
   const [showCommunications, setShowCommunications] = useState(false);
   const [expandedNotes, setExpandedNotes] = useState<string[]>([]);
 
@@ -38,9 +39,24 @@ export function VehiclePopup({ vehicle, communications, onClose }: VehiclePopupP
     emergency: "Emergencia"
   };
 
+  const popupStyle = position 
+    ? { 
+        position: 'fixed' as const,
+        left: `${position.x}px`, 
+        top: `${position.y}px`,
+        transform: 'translate(-50%, -100%)',
+        zIndex: 50 
+      }
+    : { 
+        position: 'fixed' as const,
+        top: '20%', 
+        left: '50%', 
+        transform: 'translate(-50%, -50%)',
+        zIndex: 50 
+      };
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-      <Card className="w-96 max-h-[80vh] overflow-hidden shadow-2xl">
+    <Card className="w-80 max-h-[60vh] overflow-hidden shadow-xl border-2" style={popupStyle}>
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
             <CardTitle className="flex items-center gap-2">
@@ -143,6 +159,5 @@ export function VehiclePopup({ vehicle, communications, onClose }: VehiclePopupP
           )}
         </CardContent>
       </Card>
-    </div>
   );
 }

@@ -96,7 +96,7 @@ const mockCommunications: Communication[] = [
 ];
 
 const VehicleTracker = () => {
-  const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
+  const [selectedVehicles, setSelectedVehicles] = useState<Array<{vehicle: Vehicle, position?: {x: number, y: number}}>>([]);
   const [activeFilters, setActiveFilters] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   
@@ -105,8 +105,16 @@ const VehicleTracker = () => {
     vehicle.unit.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const handleVehicleClick = (vehicle: Vehicle) => {
-    setSelectedVehicle(vehicle);
+  const handleVehicleClick = (vehicle: Vehicle, position?: {x: number, y: number}) => {
+    // Check if vehicle is already selected
+    const existingIndex = selectedVehicles.findIndex(sv => sv.vehicle.id === vehicle.id);
+    if (existingIndex >= 0) {
+      // Remove if already selected
+      setSelectedVehicles(prev => prev.filter((_, index) => index !== existingIndex));
+    } else {
+      // Add new vehicle popup
+      setSelectedVehicles(prev => [...prev, { vehicle, position }]);
+    }
   };
 
   const handleFilterToggle = (filter: string) => {
@@ -135,13 +143,15 @@ const VehicleTracker = () => {
         onVehicleClick={handleVehicleClick}
       />
       
-      {selectedVehicle && (
+      {selectedVehicles.map((selectedVehicle, index) => (
         <VehiclePopup
-          vehicle={selectedVehicle}
-          communications={mockCommunications.filter(c => c.vehicleId === selectedVehicle.id)}
-          onClose={() => setSelectedVehicle(null)}
+          key={`${selectedVehicle.vehicle.id}-${index}`}
+          vehicle={selectedVehicle.vehicle}
+          communications={mockCommunications.filter(c => c.vehicleId === selectedVehicle.vehicle.id)}
+          position={selectedVehicle.position}
+          onClose={() => setSelectedVehicles(prev => prev.filter((_, i) => i !== index))}
         />
-      )}
+      ))}
     </div>
   );
 };
