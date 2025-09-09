@@ -4,7 +4,6 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Vehicle, Communication } from "@/pages/VehicleTracker";
 import { useState } from "react";
-
 interface HeaderProps {
   vehicles: Vehicle[];
   communications: Communication[];
@@ -14,35 +13,42 @@ interface HeaderProps {
   onFilterToggle: (filter: string) => void;
   onVehicleClick: (vehicle: Vehicle) => void;
 }
-
-const filters = [
-  { id: "monuments", label: "Monumentos", icon: Building },
-  { id: "hospitals", label: "Hospitales", icon: MapPin },
-  { id: "police", label: "Carabineros", icon: Shield },
-  { id: "gas", label: "Grifos", icon: Fuel },
-];
-
+const filters = [{
+  id: "monuments",
+  label: "Monumentos",
+  icon: Building
+}, {
+  id: "hospitals",
+  label: "Hospitales",
+  icon: MapPin
+}, {
+  id: "police",
+  label: "Carabineros",
+  icon: Shield
+}, {
+  id: "gas",
+  label: "Grifos",
+  icon: Fuel
+}];
 const statusColors = {
   activo: "bg-status-active",
-  en_ruta: "bg-status-busy", 
+  en_ruta: "bg-status-busy",
   inactivo: "bg-status-offline",
   mantenimiento: "bg-status-standby",
   disponible: "bg-status-standby"
 };
-
-export function Header({ 
+export function Header({
   vehicles,
   communications,
-  searchQuery, 
-  onSearchChange, 
-  activeFilters, 
+  searchQuery,
+  onSearchChange,
+  activeFilters,
   onFilterToggle,
   onVehicleClick
 }: HeaderProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [activeView, setActiveView] = useState<"vehicles" | "communications">("vehicles");
   const [sortBy, setSortBy] = useState<"recent" | "alphabetical" | "status">("recent");
-
   const getSortedVehicles = () => {
     const sorted = [...vehicles];
     switch (sortBy) {
@@ -55,7 +61,6 @@ export function Header({
         return sorted.sort((a, b) => new Date(b.lastUpdate).getTime() - new Date(a.lastUpdate).getTime());
     }
   };
-
   const getSortedCommunications = () => {
     const sorted = [...communications];
     switch (sortBy) {
@@ -70,19 +75,15 @@ export function Header({
         return sorted.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
     }
   };
-
   const handleVehicleClick = (vehicle: Vehicle) => {
     onVehicleClick(vehicle);
     setIsExpanded(false);
   };
-
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString() + " " + date.toLocaleTimeString();
   };
-
-  return (
-    <div className="absolute top-4 left-4 right-4 z-40">
+  return <div className="absolute top-4 left-4 right-4 z-40">
       <div className="flex justify-between items-start">
         {/* Left Side - Main Expandable Tab */}
         <div className="bg-background/95 backdrop-blur-sm border rounded-lg shadow-sm overflow-hidden">
@@ -92,51 +93,25 @@ export function Header({
                 <span className="text-foreground">VIPER</span>
                 <span className="text-primary">GO</span>
               </span>
-              <Button
-                variant="secondary"
-                size="sm"
-                onClick={() => setIsExpanded(!isExpanded)}
-                className="bg-transparent border-0 hover:bg-background/50"
-              >
+              <Button variant="secondary" size="sm" onClick={() => setIsExpanded(!isExpanded)} className="bg-transparent border-0 hover:bg-background/50">
                 {isExpanded ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
               </Button>
             </div>
             
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                type="text"
-                placeholder="Buscar"
-                value={searchQuery}
-                onChange={(e) => onSearchChange(e.target.value)}
-                className="pl-10 w-64"
-              />
+              <Input type="text" placeholder="Buscar" value={searchQuery} onChange={e => onSearchChange(e.target.value)} className="pl-10 w-64" />
             </div>
           </div>
 
           {/* Expanded Content */}
-          {isExpanded && (
-            <div className="border-t">
+          {isExpanded && <div className="border-t">
               {/* Header with tabs */}
               <div className="flex border-b">
-                <button
-                  onClick={() => setActiveView("vehicles")}
-                  className={`flex-1 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
-                    activeView === "vehicles"
-                      ? "border-primary text-primary bg-primary/5"
-                      : "border-transparent text-muted-foreground hover:text-foreground"
-                  }`}
-                >
+                <button onClick={() => setActiveView("vehicles")} className={`flex-1 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${activeView === "vehicles" ? "border-primary text-primary bg-primary/5" : "border-transparent text-muted-foreground hover:text-foreground"}`}>
                   🚗 Vehículos
                 </button>
-                <button
-                  onClick={() => setActiveView("communications")}
-                  className={`flex-1 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
-                    activeView === "communications"
-                      ? "border-primary text-primary bg-primary/5"
-                      : "border-transparent text-muted-foreground hover:text-foreground"
-                  }`}
-                >
+                <button onClick={() => setActiveView("communications")} className={`flex-1 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${activeView === "communications" ? "border-primary text-primary bg-primary/5" : "border-transparent text-muted-foreground hover:text-foreground"}`}>
                   📋 Registro de Comunicaciones
                 </button>
               </div>
@@ -160,25 +135,16 @@ export function Header({
 
               {/* Content */}
               <div className="max-h-80 overflow-y-auto">
-                {activeView === "vehicles" ? (
-                  <div className="p-2">
+                {activeView === "vehicles" ? <div className="p-2">
                     <div className="grid grid-cols-4 gap-2">
-                      {getSortedVehicles().map((vehicle) => (
-                        <button
-                          key={vehicle.id}
-                          onClick={() => handleVehicleClick(vehicle)}
-                          className="flex flex-col items-center p-2 rounded-md hover:bg-muted/50 transition-colors"
-                        >
+                      {getSortedVehicles().map(vehicle => <button key={vehicle.id} onClick={() => handleVehicleClick(vehicle)} className="flex flex-col items-center p-2 hover:bg-muted/50 transition-colors rounded-full text-base">
                           <div className="flex items-center gap-1 mb-1">
                             <div className={`w-2 h-2 rounded-full ${statusColors[vehicle.status as keyof typeof statusColors] || 'bg-status-offline'}`} />
                             <span className="text-xs font-medium">{vehicle.unit}</span>
                           </div>
-                        </button>
-                      ))}
+                        </button>)}
                     </div>
-                  </div>
-                ) : (
-                  <div className="p-3">
+                  </div> : <div className="p-3">
                     <div className="space-y-2">
                       <div className="grid grid-cols-4 gap-2 text-xs font-medium text-muted-foreground border-b pb-2">
                         <span>Fecha</span>
@@ -186,10 +152,9 @@ export function Header({
                         <span>Clave</span>
                         <span>Nota</span>
                       </div>
-                      {getSortedCommunications().map((comm) => {
-                        const vehicle = vehicles.find(v => v.id === comm.vehicleId);
-                        return (
-                          <div key={comm.id} className="grid grid-cols-4 gap-2 text-xs py-1 border-b border-border/50">
+                      {getSortedCommunications().map(comm => {
+                  const vehicle = vehicles.find(v => v.id === comm.vehicleId);
+                  return <div key={comm.id} className="grid grid-cols-4 gap-2 text-xs py-1 border-b border-border/50">
                             <span className="text-muted-foreground">
                               {formatDate(comm.timestamp).split(' ')[0]}
                             </span>
@@ -198,43 +163,27 @@ export function Header({
                             <span className="text-muted-foreground truncate">
                               {comm.note ? "Sample text" : "-"}
                             </span>
-                          </div>
-                        );
-                      })}
+                          </div>;
+                })}
                     </div>
-                  </div>
-                )}
+                  </div>}
               </div>
-            </div>
-          )}
+            </div>}
         </div>
 
         {/* Right Side - Filter Tabs */}
         <div className="flex items-center gap-2">
-          {filters.map((filter) => {
-            const Icon = filter.icon;
-            const isActive = activeFilters.includes(filter.id);
-            
-            return (
-              <div key={filter.id} className="bg-background/95 backdrop-blur-sm border rounded-lg shadow-sm">
-                <Button
-                  variant={isActive ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => onFilterToggle(filter.id)}
-                  className={`gap-2 border-0 ${
-                    isActive 
-                      ? "bg-primary text-primary-foreground shadow-sm" 
-                      : "bg-transparent hover:bg-primary/10 hover:text-primary"
-                  }`}
-                >
+          {filters.map(filter => {
+          const Icon = filter.icon;
+          const isActive = activeFilters.includes(filter.id);
+          return <div key={filter.id} className="bg-background/95 backdrop-blur-sm border rounded-lg shadow-sm">
+                <Button variant={isActive ? "default" : "outline"} size="sm" onClick={() => onFilterToggle(filter.id)} className={`gap-2 border-0 ${isActive ? "bg-primary text-primary-foreground shadow-sm" : "bg-transparent hover:bg-primary/10 hover:text-primary"}`}>
                   <Icon className="h-4 w-4" />
                   {filter.label}
                 </Button>
-              </div>
-            );
-          })}
+              </div>;
+        })}
         </div>
       </div>
-    </div>
-  );
+    </div>;
 }
