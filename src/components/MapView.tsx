@@ -8,9 +8,9 @@ import { Button } from "@/components/ui/button";
 
 interface MapViewProps {
   vehicles: Vehicle[];
-  onVehicleClick: (vehicle: Vehicle, position?: {x: number, y: number}) => void;
+  onVehicleClick: (vehicle: Vehicle) => void;
   activeFilters: string[];
-  selectedVehicles: Array<{vehicle: Vehicle, position?: {x: number, y: number}}>;
+  selectedVehicles: Vehicle[];
   onClosePopup: (index: number) => void;
   communications: Communication[];
 }
@@ -126,17 +126,11 @@ export function MapView({ vehicles, onVehicleClick, activeFilters, selectedVehic
 
         {/* Vehicle Markers */}
         {vehicles.map((vehicle) => {
-          // Calculate vehicle position on screen relative to the map container
-          const x = ((vehicle.position.lng + 70.7) * 800) % 100;
-          const y = ((vehicle.position.lat + 33.5) * 600) % 100;
-          const screenX = 20 + (x * 0.6);
-          const screenY = 20 + (y * 0.6);
-          
           return (
             <VehicleMarker
               key={vehicle.id}
               vehicle={vehicle}
-              onClick={() => onVehicleClick(vehicle, { x: screenX, y: screenY })}
+              onClick={() => onVehicleClick(vehicle)}
             />
           );
         })}
@@ -151,15 +145,23 @@ export function MapView({ vehicles, onVehicleClick, activeFilters, selectedVehic
         ))}
 
         {/* Vehicle Popups */}
-        {selectedVehicles.map((selectedVehicle, index) => (
-          <VehiclePopup
-            key={`${selectedVehicle.vehicle.id}-${index}`}
-            vehicle={selectedVehicle.vehicle}
-            communications={communications.filter(c => c.vehicleId === selectedVehicle.vehicle.id)}
-            position={selectedVehicle.position}
-            onClose={() => onClosePopup(index)}
-          />
-        ))}
+        {selectedVehicles.map((selectedVehicle, index) => {
+          // Calculate popup position based on marker position
+          const x = ((selectedVehicle.position.lng + 70.7) * 800) % 100;
+          const y = ((selectedVehicle.position.lat + 33.5) * 600) % 100;
+          const screenX = 20 + (x * 0.6);
+          const screenY = 20 + (y * 0.6);
+          
+          return (
+            <VehiclePopup
+              key={`${selectedVehicle.id}-${index}`}
+              vehicle={selectedVehicle}
+              communications={communications.filter(c => c.vehicleId === selectedVehicle.id)}
+              position={{ x: screenX, y: screenY }}
+              onClose={() => onClosePopup(index)}
+            />
+          );
+        })}
       </div>
 
       {/* Map Controls - Bottom Right */}

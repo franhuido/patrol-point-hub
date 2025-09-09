@@ -42,8 +42,8 @@ export function VehiclePopup({ vehicle, communications, onClose, position }: Veh
   const popupStyle = position 
     ? { 
         position: 'absolute' as const,
-        left: `${position.x}px`, 
-        top: `${Math.max(position.y - 200, 10)}px`,
+        left: `${position.x}%`, 
+        top: `${Math.max(position.y - 30, 5)}%`,
         transform: 'translate(-50%, 0)',
         zIndex: 50 
       }

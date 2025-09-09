@@ -96,7 +96,7 @@ const mockCommunications: Communication[] = [
 ];
 
 const VehicleTracker = () => {
-  const [selectedVehicles, setSelectedVehicles] = useState<Array<{vehicle: Vehicle, position?: {x: number, y: number}}>>([]);
+  const [selectedVehicles, setSelectedVehicles] = useState<Vehicle[]>([]);
   const [activeFilters, setActiveFilters] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   
@@ -105,15 +105,15 @@ const VehicleTracker = () => {
     vehicle.unit.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const handleVehicleClick = (vehicle: Vehicle, position?: {x: number, y: number}) => {
+  const handleVehicleClick = (vehicle: Vehicle) => {
     // Check if vehicle is already selected
-    const existingIndex = selectedVehicles.findIndex(sv => sv.vehicle.id === vehicle.id);
+    const existingIndex = selectedVehicles.findIndex(sv => sv.id === vehicle.id);
     if (existingIndex >= 0) {
       // Remove if already selected
       setSelectedVehicles(prev => prev.filter((_, index) => index !== existingIndex));
     } else {
       // Add new vehicle popup
-      setSelectedVehicles(prev => [...prev, { vehicle, position }]);
+      setSelectedVehicles(prev => [...prev, vehicle]);
     }
   };
 

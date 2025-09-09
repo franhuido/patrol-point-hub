@@ -9,31 +9,31 @@ function CommunicationRow({ comm, vehicle, formatDate }: { comm: Communication, 
   const [isExpanded, setIsExpanded] = useState(false);
   
   return (
-    <div className="grid grid-cols-4 gap-2 text-xs py-1 border-b border-border/50">
-      <span className="text-muted-foreground">
-        {formatDate(comm.timestamp).split(' ')[0]}
-      </span>
-      <span>{vehicle?.unit || 'N/A'}</span>
-      <span>{comm.code}</span>
-      <div className="text-muted-foreground">
-        {comm.note ? (
-          <div>
+    <div className="py-1 border-b border-border/50">
+      <div className="grid grid-cols-4 gap-2 text-xs">
+        <span className="text-muted-foreground">
+          {formatDate(comm.timestamp).split(' ')[0]}
+        </span>
+        <span>{vehicle?.unit || 'N/A'}</span>
+        <span>{comm.code}</span>
+        <div className="text-muted-foreground">
+          {comm.note ? (
             <button 
               onClick={() => setIsExpanded(!isExpanded)}
               className="text-primary hover:text-primary/80 underline text-xs"
             >
               {isExpanded ? "Ocultar nota" : "Ver nota"}
             </button>
-            {isExpanded && (
-              <div className="mt-1 p-2 bg-muted/50 rounded text-xs border">
-                {comm.note}
-              </div>
-            )}
-          </div>
-        ) : (
-          "-"
-        )}
+          ) : (
+            "-"
+          )}
+        </div>
       </div>
+      {isExpanded && comm.note && (
+        <div className="mt-2 p-2 bg-muted/50 rounded text-xs border col-span-4">
+          {comm.note}
+        </div>
+      )}
     </div>
   );
 }
