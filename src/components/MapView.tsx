@@ -126,15 +126,17 @@ export function MapView({ vehicles, onVehicleClick, activeFilters, selectedVehic
 
         {/* Vehicle Markers */}
         {vehicles.map((vehicle) => {
-          // Calculate vehicle position on screen
-          const x = (vehicle.position.lng + 70.7) * 800;
-          const y = (33.5 - vehicle.position.lat) * 600;
+          // Calculate vehicle position on screen relative to the map container
+          const x = ((vehicle.position.lng + 70.7) * 800) % 100;
+          const y = ((vehicle.position.lat + 33.5) * 600) % 100;
+          const screenX = 20 + (x * 0.6);
+          const screenY = 20 + (y * 0.6);
           
           return (
             <VehicleMarker
               key={vehicle.id}
               vehicle={vehicle}
-              onClick={() => onVehicleClick(vehicle, { x, y })}
+              onClick={() => onVehicleClick(vehicle, { x: screenX, y: screenY })}
             />
           );
         })}

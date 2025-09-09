@@ -4,6 +4,39 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Vehicle, Communication } from "@/pages/VehicleTracker";
 import { useState } from "react";
+
+function CommunicationRow({ comm, vehicle, formatDate }: { comm: Communication, vehicle?: Vehicle, formatDate: (date: string) => string }) {
+  const [isExpanded, setIsExpanded] = useState(false);
+  
+  return (
+    <div className="grid grid-cols-4 gap-2 text-xs py-1 border-b border-border/50">
+      <span className="text-muted-foreground">
+        {formatDate(comm.timestamp).split(' ')[0]}
+      </span>
+      <span>{vehicle?.unit || 'N/A'}</span>
+      <span>{comm.code}</span>
+      <div className="text-muted-foreground">
+        {comm.note ? (
+          <div>
+            <button 
+              onClick={() => setIsExpanded(!isExpanded)}
+              className="text-primary hover:text-primary/80 underline text-xs"
+            >
+              {isExpanded ? "Ocultar nota" : "Ver nota"}
+            </button>
+            {isExpanded && (
+              <div className="mt-1 p-2 bg-muted/50 rounded text-xs border">
+                {comm.note}
+              </div>
+            )}
+          </div>
+        ) : (
+          "-"
+        )}
+      </div>
+    </div>
+  );
+}
 interface HeaderProps {
   vehicles: Vehicle[];
   communications: Communication[];
@@ -154,16 +187,7 @@ export function Header({
                       </div>
                       {getSortedCommunications().map(comm => {
                   const vehicle = vehicles.find(v => v.id === comm.vehicleId);
-                  return <div key={comm.id} className="grid grid-cols-4 gap-2 text-xs py-1 border-b border-border/50">
-                            <span className="text-muted-foreground">
-                              {formatDate(comm.timestamp).split(' ')[0]}
-                            </span>
-                            <span>{vehicle?.unit || 'N/A'}</span>
-                            <span>{comm.code}</span>
-                            <span className="text-muted-foreground truncate">
-                              {comm.note ? "Sample text" : "-"}
-                            </span>
-                          </div>;
+                  return <CommunicationRow key={comm.id} comm={comm} vehicle={vehicle} formatDate={formatDate} />;
                 })}
                     </div>
                   </div>}
