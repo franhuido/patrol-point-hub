@@ -137,7 +137,7 @@ export function Header({
               <div className="max-h-80 overflow-y-auto">
                 {activeView === "vehicles" ? <div className="p-2">
                     <div className="grid grid-cols-4 gap-2">
-                      {getSortedVehicles().map(vehicle => <button key={vehicle.id} onClick={() => handleVehicleClick(vehicle)} className="flex flex-col items-center p-2 hover:bg-muted/50 transition-colors rounded-full text-base">
+                      {getSortedVehicles().map(vehicle => <button key={vehicle.id} onClick={() => handleVehicleClick(vehicle)} className="flex flex-col items-center p-2 hover:bg-muted/50 transition-colors rounded-full text-base border-2 border-muted">
                           <div className="flex items-center gap-1 mb-1">
                             <div className={`w-2 h-2 rounded-full ${statusColors[vehicle.status as keyof typeof statusColors] || 'bg-status-offline'}`} />
                             <span className="text-xs font-medium">{vehicle.unit}</span>
