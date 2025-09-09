@@ -64,11 +64,11 @@ const filters = [{
   icon: Fuel
 }];
 const statusColors = {
-  activo: "bg-status-active",
-  en_ruta: "bg-status-busy",
-  inactivo: "bg-status-offline",
-  mantenimiento: "bg-status-standby",
-  disponible: "bg-status-standby"
+  active: "bg-status-active",
+  busy: "bg-status-busy", 
+  standby: "bg-status-standby",
+  offline: "bg-status-offline",
+  emergency: "bg-status-emergency"
 };
 export function Header({
   vehicles,
@@ -172,7 +172,7 @@ export function Header({
                     <div className="grid grid-cols-4 gap-2">
                       {getSortedVehicles().map(vehicle => <button key={vehicle.id} onClick={() => handleVehicleClick(vehicle)} className="flex flex-col items-center p-2 hover:bg-muted/50 transition-colors rounded-full text-base border-2 border-muted">
                           <div className="flex items-center gap-1 mb-1">
-                            <div className={`w-2 h-2 rounded-full ${statusColors[vehicle.status as keyof typeof statusColors] || 'bg-status-offline'}`} />
+                            <div className={`w-2 h-2 rounded-full ${statusColors[vehicle.status] || 'bg-status-offline'}`} />
                             <span className="text-xs font-medium">{vehicle.unit}</span>
                           </div>
                         </button>)}

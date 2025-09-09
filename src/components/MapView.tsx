@@ -2,6 +2,7 @@ import { Vehicle, Communication } from "@/pages/VehicleTracker";
 import { VehicleMarker } from "./VehicleMarker";
 import { FilterMarker } from "./FilterMarker";
 import { VehiclePopup } from "./VehiclePopup";
+import { HydrantPopup } from "./HydrantPopup";
 import { useState, useRef } from "react";
 import { Plus, Minus } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -13,6 +14,13 @@ interface MapViewProps {
   selectedVehicles: Vehicle[];
   onClosePopup: (index: number) => void;
   communications: Communication[];
+}
+
+interface SelectedPoi {
+  id: string;
+  name: string;
+  position: { lat: number; lng: number };
+  type: string;
 }
 
 // Mock points of interest data
@@ -40,6 +48,7 @@ export function MapView({ vehicles, onVehicleClick, activeFilters, selectedVehic
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [mapPosition, setMapPosition] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
+  const [selectedPois, setSelectedPois] = useState<SelectedPoi[]>([]);
   const mapRef = useRef<HTMLDivElement>(null);
 
   const allPois = activeFilters.flatMap(filter => {
@@ -70,6 +79,20 @@ export function MapView({ vehicles, onVehicleClick, activeFilters, selectedVehic
 
   const handleZoomOut = () => {
     setZoom(prev => Math.max(prev - 0.2, 0.5));
+  };
+
+  const handlePoiClick = (poi: any) => {
+    if (poi.type === 'gas') {
+      // Check if hydrant is already selected
+      const existingIndex = selectedPois.findIndex(sp => sp.id === poi.id);
+      if (existingIndex >= 0) {
+        // Remove if already selected
+        setSelectedPois(prev => prev.filter((_, index) => index !== existingIndex));
+      } else {
+        // Add new hydrant popup
+        setSelectedPois(prev => [...prev, poi]);
+      }
+    }
   };
 
   return (
@@ -137,11 +160,12 @@ export function MapView({ vehicles, onVehicleClick, activeFilters, selectedVehic
 
         {/* Points of Interest */}
         {allPois.map((poi) => (
-          <FilterMarker
-            key={poi.id}
-            poi={poi}
-            type={poi.type}
-          />
+          <div key={poi.id} onClick={() => handlePoiClick(poi)}>
+            <FilterMarker
+              poi={poi}
+              type={poi.type}
+            />
+          </div>
         ))}
 
         {/* Vehicle Popups */}
@@ -159,6 +183,26 @@ export function MapView({ vehicles, onVehicleClick, activeFilters, selectedVehic
               communications={communications.filter(c => c.vehicleId === selectedVehicle.id)}
               position={{ x: screenX, y: screenY }}
               onClose={() => onClosePopup(index)}
+            />
+          );
+        })}
+
+        {/* Hydrant Popups */}
+        {selectedPois.map((selectedPoi, index) => {
+          if (selectedPoi.type !== 'gas') return null;
+          
+          // Calculate popup position based on marker position
+          const x = ((selectedPoi.position.lng + 70.7) * 800) % 100;
+          const y = ((selectedPoi.position.lat + 33.5) * 600) % 100; 
+          const screenX = 20 + (x * 0.6);
+          const screenY = 20 + (y * 0.6);
+          
+          return (
+            <HydrantPopup
+              key={`${selectedPoi.id}-${index}`}
+              hydrant={selectedPoi}
+              position={{ x: screenX, y: screenY }}
+              onClose={() => setSelectedPois(prev => prev.filter((_, i) => i !== index))}
             />
           );
         })}

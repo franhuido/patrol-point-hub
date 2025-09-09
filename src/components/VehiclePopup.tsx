@@ -119,7 +119,7 @@ export function VehiclePopup({ vehicle, communications, onClose, position }: Veh
 
           {/* Communications List */}
           {showCommunications && (
-            <div className="max-h-60 overflow-y-auto space-y-2 border rounded p-2">
+            <div className="max-h-40 overflow-y-auto space-y-2 border rounded p-2 scrollbar-thin scrollbar-track-muted scrollbar-thumb-muted-foreground">
               {communications.length > 0 ? (
                 communications.map((comm) => (
                   <div key={comm.id} className="border-b border-border pb-2 last:border-b-0">
